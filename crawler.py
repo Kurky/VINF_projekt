@@ -35,12 +35,6 @@ def getPlayerIds(driver, pageNumber):
     return players
 
 
-def getPlayerRawHtml(driver):
-    WebDriverWait(driver, 10).until(presence_of_element_located((By.CLASS_NAME, 'sc-kMkxaj')))
-    rendered_html = driver.page_source
-    return rendered_html
-
-
 def createPlayersIDsCsv(driver, numberOfPages):
     page_url = 'https://www.nhl.com/stats/skaters?reportType=allTime&seasonFrom=19171918&seasonTo=20232024&gameType=2&filter=gamesPlayed,gte,1&sort=points,goals,assists&page=0&pageSize=100'
     driver.get(page_url)
