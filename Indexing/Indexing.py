@@ -1,49 +1,34 @@
-import os
-from pathlib import Path
-
 import lucene
-
-from java.nio.file import Paths
+from java.io import File
 from org.apache.lucene.analysis.standard import StandardAnalyzer
-from org.apache.lucene.document import Document, Field, FieldType
-from org.apache.lucene.index import IndexWriter, IndexWriterConfig, DirectoryReader, IndexReader
-from org.apache.lucene.store import MMapDirectory
-from org.apache.lucene.index import IndexOptions
+from org.apache.lucene.document import Document, TextField
+from org.apache.lucene.index import IndexWriter, IndexWriterConfig
+from org.apache.lucene.store import SimpleFSDirectory
+import pandas as pd
 
-# Initialize Java VM
-lucene.initVM(vmargs=['-Djava.awt.headless=true'])
+lucene.initVM()
+indexPath = File("index/").toPath()
+indexDir = SimpleFSDirectory(indexPath)
+writerConfig = IndexWriterConfig(StandardAnalyzer())
+writer = IndexWriter(indexDir, writerConfig)
 
-# Create or access the index directory
-index_dir = Paths.get('index')
-fs_dir = MMapDirectory(index_dir)
 
-# Configuring the IndexWriter
-analyzer = StandardAnalyzer()
-config = IndexWriterConfig(analyzer)
-writer = IndexWriter(fs_dir, config)
+def indexPlayerInfo(df):
+    for i, row in df.iterrows():
+        doc = Document()
+        for col in df.columns:
+            doc.add(TextField(col, str(row[col]), TextField.Store.YES))
+        writer.addDocument(doc)
+        print(f"Indexed document {i + 1}")
 
-# Define field type
-t1 = FieldType()
-t1.setStored(True)
-t1.setIndexOptions(IndexOptions.DOCS)
 
-t2 = FieldType()
-t2.setStored(False)
-t2.setIndexOptions(IndexOptions.DOCS_AND_FREQS)
+def closeWriter():
+    writer.close()
 
-# Add a document
-doc = Document()
-doc.add(Field('id', '418129481', t1))
-doc.add(Field('title', 'Lucene in Action', t1))
-doc.add(Field('text', 'Hello Lucene, This is the first document', t2))
-writer.addDocument(doc)
 
-# Commit the changes
-writer.commit()
+if __name__ == "__main__":
+    player_info_file_path = '../data/cleanCsvFiles/playersInfo.csv'
+    player_data = pd.read_csv(player_info_file_path)
 
-# Refresh the reader to see the updated documents
-reader = DirectoryReader.open(fs_dir)
-num_docs = reader.numDocs()
-reader.close()  # Close the reader
-
-print(f"{num_docs} docs found in index")
+    indexPlayerInfo(player_data)
+    closeWriter()

@@ -1,36 +1,42 @@
 import lucene
-from java.nio.file import Paths
+from java.io import File
+from org.apache.lucene.index import DirectoryReader
+from org.apache.lucene.queryparser.classic import QueryParser
+from org.apache.lucene.search import IndexSearcher
+from org.apache.lucene.store import SimpleFSDirectory
 from org.apache.lucene.analysis.standard import StandardAnalyzer
-from org.apache.lucene.index import DirectoryReader, Term
-from org.apache.lucene.search import IndexSearcher, TermQuery
-from org.apache.lucene.store import MMapDirectory
 
-# Initialize Java VM
-lucene.initVM(vmargs=['-Djava.awt.headless=true'])
+lucene.initVM()
 
-# Access the index directory
-index_dir = Paths.get('index')
-fs_dir = MMapDirectory(index_dir)
 
-# Create an IndexSearcher
-reader = DirectoryReader.open(fs_dir)
-searcher = IndexSearcher(reader)
+def retrieve_player_name(index_dir, player_name):
+    index_dir = SimpleFSDirectory(File(index_dir).toPath())
+    reader = DirectoryReader.open(index_dir)
+    searcher = IndexSearcher(reader)
+    analyzer = StandardAnalyzer()
 
-# Create a Term instance
-term = Term('text', 'Lucene')
+    query_parser = QueryParser("Player_Name", analyzer)
+    query = query_parser.parse(f'Player_Name:"{player_name}"')
 
-# Create a query to search the term 'Lucene'
-query = TermQuery(term)
+    top_docs = searcher.search(query, 10)  # Search for top 10 documents matching the query
 
-# Perform the search
-hits = searcher.search(query, 10)  # Search for a maximum of 10 hits
+    result_docs = []
+    for hit in top_docs.scoreDocs:
+        doc = searcher.doc(hit.doc)
+        result_docs.append({field.name(): doc.get(field.name()) for field in doc.getFields()})
 
-# Output the results
-print(f"Number of hits for 'Lucene': {hits.totalHits.value}")
-for hit in hits.scoreDocs:
-    doc_id = hit.doc
-    document = searcher.doc(doc_id)
-    print(f"Hit score: {hit.score}, Document: {document}")
+    reader.close()
+    return result_docs
 
-# Close the reader
-reader.close()
+
+if __name__ == "__main__":
+    index_folder = "index"  # Path to the index folder
+    player_name_to_search = "Jaromir Jagr"  # Player name to search for
+
+    results = retrieve_player_name(index_folder, player_name_to_search)
+    if results:
+        print(f"Search Results for Player Name: {player_name_to_search}")
+        for result in results:
+            print(f"Player Name: {result['Player_Name']} - Country: {result['Country']}")
+    else:
+        print(f"No results found for Player Name: {player_name_to_search}")
