@@ -7,7 +7,7 @@ from org.apache.lucene.store import SimpleFSDirectory
 import pandas as pd
 
 lucene.initVM()
-indexPath = File("index/").toPath()
+indexPath = File("indexPLayerSeasons/").toPath()
 indexDir = SimpleFSDirectory(indexPath)
 writerConfig = IndexWriterConfig(StandardAnalyzer())
 writer = IndexWriter(indexDir, writerConfig)
@@ -27,7 +27,7 @@ def closeWriter():
 
 
 if __name__ == "__main__":
-    player_info_file_path = '../data/cleanCsvFiles/playersInfo.csv'
+    player_info_file_path = '../data/cleanCsvFiles/playersSeasons.csv'
     player_data = pd.read_csv(player_info_file_path)
 
     indexPlayerInfo(player_data)
