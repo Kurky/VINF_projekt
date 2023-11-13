@@ -126,7 +126,7 @@ def did_players_play_together(results_one, results_two):
         return False
 
 
-def twoPlayersPlayedTogether():
+def whoScoredMostGoals():
     index_folder_info = "indexPlayerInfo"
     name_list = []
     print('type "end" to finish adding players.')
@@ -149,16 +149,18 @@ def twoPlayersPlayedTogether():
     print(tabulate(results_list, headers='keys', tablefmt='fancy_grid'))
 
 
-def whoScoredMostGoals():
+def twoPlayersPlayedTogether():
     index_folder_info = "indexPlayerInfo"
     index_folder_seasons = "indexPlayerSeasons"
     player_one_name_to_search = input("Enter name of first player: ")
     player_two_name_to_search = input("Enter name of second player: ")
 
-    player_one_id = searchPlayerInfoByName(index_folder_info, player_one_name_to_search)
+    player_one_id, results_info_one = searchPlayerInfoByName(index_folder_info, player_one_name_to_search)
+    print(tabulate(results_info_one, headers='keys', tablefmt='fancy_grid'))
     results_one = searchPlayerSeasonsByPlayerId(index_folder_seasons, player_one_id, player_one_name_to_search)
 
-    player_two_id = searchPlayerInfoByName(index_folder_info, player_two_name_to_search)
+    player_two_id, results_info_two = searchPlayerInfoByName(index_folder_info, player_two_name_to_search)
+    print(tabulate(results_info_two, headers='keys', tablefmt='fancy_grid'))
     results_two = searchPlayerSeasonsByPlayerId(index_folder_seasons, player_two_id, player_two_name_to_search)
     common_seasons = did_players_play_together(results_one, results_two)
     if common_seasons:
@@ -190,7 +192,7 @@ if __name__ == "__main__":
         elif option == '2':
             twoPlayersPlayedTogether()
         elif option == '3':
-            twoPlayersPlayedTogether()
+            whoScoredMostGoals()
         elif option == '4':
             listOfPlayersCountryPosition()
         else:
