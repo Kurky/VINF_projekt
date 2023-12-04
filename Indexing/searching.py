@@ -109,6 +109,7 @@ def searchPlayerInfoAndSeasonsByName():
     index_folder = "indexPlayerInfo"
     player_name_to_search = input("Enter the player name: ")
     player_id, results_info = searchPlayerInfoByName(index_folder, player_name_to_search)
+    print('Results for player: ', player_name_to_search)
     print(tabulate(results_info, headers='keys', tablefmt='fancy_grid'))
     index_folder = "indexPlayerSeasons"
     results = searchPlayerSeasonsByPlayerId(index_folder, player_id, player_name_to_search)
@@ -156,15 +157,15 @@ def twoPlayersPlayedTogether():
     player_two_name_to_search = input("Enter name of second player: ")
 
     player_one_id, results_info_one = searchPlayerInfoByName(index_folder_info, player_one_name_to_search)
-    print(tabulate(results_info_one, headers='keys', tablefmt='fancy_grid'))
     results_one = searchPlayerSeasonsByPlayerId(index_folder_seasons, player_one_id, player_one_name_to_search)
 
     player_two_id, results_info_two = searchPlayerInfoByName(index_folder_info, player_two_name_to_search)
-    print(tabulate(results_info_two, headers='keys', tablefmt='fancy_grid'))
     results_two = searchPlayerSeasonsByPlayerId(index_folder_seasons, player_two_id, player_two_name_to_search)
     common_seasons = did_players_play_together(results_one, results_two)
     if common_seasons:
         print('Players played together in seasons:')
+        print(tabulate(results_info_one, headers='keys', tablefmt='fancy_grid'))
+        print(tabulate(results_info_two, headers='keys', tablefmt='fancy_grid'))
         print(tabulate(common_seasons, tablefmt='fancy_grid'))
     else:
         print('Players did not played together.')
@@ -176,6 +177,8 @@ def listOfPlayersCountryPosition():
     position = input("Enter Position: ")
     results = searchPlayerSeasonsByCountryAndPositions(index_folder_info, country, position)
     if results:
+        print('List of players from specific country playing on specific position contains ', str(len(results)),
+              'records')
         print(tabulate(results, headers='keys', tablefmt='fancy_grid'))
 
 
